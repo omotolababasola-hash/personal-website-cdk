@@ -26,26 +26,16 @@ export class PersonalWebsiteCdkStack extends cdk.Stack {
     // CodePipeline for CI/CD using CDK Pipelines
     const pipeline = new CodePipeline(this, 'PersonalWebsitePipeline', {
       pipelineName: 'personal-website-pipeline',
-      synth: new ShellStep('Synth', {
+      synth: new ShellStep('TestAndDeploy', {
         input: CodePipelineSource.gitHub('omotolababasola-hash/personal-website-cdk', 'main'),
         commands: [
           'npm ci',
           'npm run test',
           'npm run build',
-          'npx cdk synth'
+          'npx cdk deploy'
         ]
       })
     });
 
-    // Output pipeline information
-    // new cdk.CfnOutput(this, 'PipelineName', {
-    //   value: pipeline.pipeline.pipelineName,
-    //   description: 'CodePipeline name for personal website'
-    // });
-
-    // new cdk.CfnOutput(this, 'PipelineArn', {
-    //   value: pipeline.pipeline.pipelineArn,
-    //   description: 'CodePipeline ARN for personal website'
-    // });
    }
 }
