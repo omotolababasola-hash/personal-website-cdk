@@ -100,9 +100,9 @@ exports[`PersonalWebsiteCdkStack matches snapshot 1`] = `
                   "Version": "1",
                 },
                 "Configuration": {
-                  "EnvironmentVariables": "[{"name":"_PROJECT_CONFIG_HASH","type":"PLAINTEXT","value":"98e9e162a79e87dc276ea063e53d9f4f7db243c6f8a10a6d9204184fdd9256ae"}]",
+                  "EnvironmentVariables": "[{"name":"_PROJECT_CONFIG_HASH","type":"PLAINTEXT","value":"b193fbde9d64556a05dc2b1039c8031d969fa8bdb663f62712d5eb771b9ddd46"}]",
                   "ProjectName": {
-                    "Ref": "PersonalWebsitePipelineBuildSynthCdkBuildProjectE26F8978",
+                    "Ref": "PersonalWebsitePipelineBuildTestAndDeployCdkBuildProject3FD1A0F3",
                   },
                 },
                 "InputArtifacts": [
@@ -110,10 +110,10 @@ exports[`PersonalWebsiteCdkStack matches snapshot 1`] = `
                     "Name": "omotolababasola_hash_personal_website_cdk_Source",
                   },
                 ],
-                "Name": "Synth",
+                "Name": "TestAndDeploy",
                 "OutputArtifacts": [
                   {
-                    "Name": "Synth_Output",
+                    "Name": "TestAndDeploy_Output",
                   },
                 ],
                 "RoleArn": {
@@ -144,7 +144,7 @@ exports[`PersonalWebsiteCdkStack matches snapshot 1`] = `
                 },
                 "InputArtifacts": [
                   {
-                    "Name": "Synth_Output",
+                    "Name": "TestAndDeploy_Output",
                   },
                 ],
                 "Name": "SelfMutate",
@@ -232,7 +232,7 @@ exports[`PersonalWebsiteCdkStack matches snapshot 1`] = `
       },
       "Type": "AWS::S3::BucketPolicy",
     },
-    "PersonalWebsitePipelineBuildSynthCdkBuildProjectE26F8978": {
+    "PersonalWebsitePipelineBuildTestAndDeployCdkBuildProject3FD1A0F3": {
       "Properties": {
         "Artifacts": {
           "Type": "CODEPIPELINE",
@@ -240,7 +240,7 @@ exports[`PersonalWebsiteCdkStack matches snapshot 1`] = `
         "Cache": {
           "Type": "NO_CACHE",
         },
-        "Description": "Pipeline step MyTestStack/Pipeline/Build/Synth",
+        "Description": "Pipeline step MyTestStack/Pipeline/Build/TestAndDeploy",
         "EncryptionKey": "alias/aws/s3",
         "Environment": {
           "ComputeType": "BUILD_GENERAL1_SMALL",
@@ -251,7 +251,7 @@ exports[`PersonalWebsiteCdkStack matches snapshot 1`] = `
         },
         "ServiceRole": {
           "Fn::GetAtt": [
-            "PersonalWebsitePipelineBuildSynthCdkBuildProjectRole32874513",
+            "PersonalWebsitePipelineBuildTestAndDeployCdkBuildProjectRole52AAD279",
             "Arn",
           ],
         },
@@ -264,7 +264,7 @@ exports[`PersonalWebsiteCdkStack matches snapshot 1`] = `
         "npm ci",
         "npm run test",
         "npm run build",
-        "npx cdk synth"
+        "npx cdk deploy"
       ]
     }
   },
@@ -278,7 +278,7 @@ exports[`PersonalWebsiteCdkStack matches snapshot 1`] = `
       },
       "Type": "AWS::CodeBuild::Project",
     },
-    "PersonalWebsitePipelineBuildSynthCdkBuildProjectRole32874513": {
+    "PersonalWebsitePipelineBuildTestAndDeployCdkBuildProjectRole52AAD279": {
       "Properties": {
         "AssumeRolePolicyDocument": {
           "Statement": [
@@ -295,7 +295,7 @@ exports[`PersonalWebsiteCdkStack matches snapshot 1`] = `
       },
       "Type": "AWS::IAM::Role",
     },
-    "PersonalWebsitePipelineBuildSynthCdkBuildProjectRoleDefaultPolicy46B112FD": {
+    "PersonalWebsitePipelineBuildTestAndDeployCdkBuildProjectRoleDefaultPolicyCF492ED7": {
       "Properties": {
         "PolicyDocument": {
           "Statement": [
@@ -325,7 +325,7 @@ exports[`PersonalWebsiteCdkStack matches snapshot 1`] = `
                       },
                       ":log-group:/aws/codebuild/",
                       {
-                        "Ref": "PersonalWebsitePipelineBuildSynthCdkBuildProjectE26F8978",
+                        "Ref": "PersonalWebsitePipelineBuildTestAndDeployCdkBuildProject3FD1A0F3",
                       },
                     ],
                   ],
@@ -348,7 +348,7 @@ exports[`PersonalWebsiteCdkStack matches snapshot 1`] = `
                       },
                       ":log-group:/aws/codebuild/",
                       {
-                        "Ref": "PersonalWebsitePipelineBuildSynthCdkBuildProjectE26F8978",
+                        "Ref": "PersonalWebsitePipelineBuildTestAndDeployCdkBuildProject3FD1A0F3",
                       },
                       ":*",
                     ],
@@ -383,7 +383,7 @@ exports[`PersonalWebsiteCdkStack matches snapshot 1`] = `
                     },
                     ":report-group/",
                     {
-                      "Ref": "PersonalWebsitePipelineBuildSynthCdkBuildProjectE26F8978",
+                      "Ref": "PersonalWebsitePipelineBuildTestAndDeployCdkBuildProject3FD1A0F3",
                     },
                     "-*",
                   ],
@@ -430,10 +430,10 @@ exports[`PersonalWebsiteCdkStack matches snapshot 1`] = `
           ],
           "Version": "2012-10-17",
         },
-        "PolicyName": "PersonalWebsitePipelineBuildSynthCdkBuildProjectRoleDefaultPolicy46B112FD",
+        "PolicyName": "PersonalWebsitePipelineBuildTestAndDeployCdkBuildProjectRoleDefaultPolicyCF492ED7",
         "Roles": [
           {
-            "Ref": "PersonalWebsitePipelineBuildSynthCdkBuildProjectRole32874513",
+            "Ref": "PersonalWebsitePipelineBuildTestAndDeployCdkBuildProjectRole52AAD279",
           },
         ],
       },
@@ -474,7 +474,7 @@ exports[`PersonalWebsiteCdkStack matches snapshot 1`] = `
               "Effect": "Allow",
               "Resource": {
                 "Fn::GetAtt": [
-                  "PersonalWebsitePipelineBuildSynthCdkBuildProjectE26F8978",
+                  "PersonalWebsitePipelineBuildTestAndDeployCdkBuildProject3FD1A0F3",
                   "Arn",
                 ],
               },

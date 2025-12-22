@@ -36,6 +36,5 @@ export class PersonalWebsiteCdkStack extends cdk.Stack {
         ]
       })
     });
-
    }
 }
