@@ -1,15 +1,12 @@
 import * as cdk from 'aws-cdk-lib/core';
 import { Construct } from 'constructs';
 import * as route53 from 'aws-cdk-lib/aws-route53';
-// import * as sqs from 'aws-cdk-lib/aws-sqs';
+import { CodePipeline, CodePipelineSource, ShellStep } from 'aws-cdk-lib/pipelines';
 
 export class PersonalWebsiteCdkStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
-    // The code that defines your stack goes here
-
-    // Route53 Hosted Zone for babalawo.dev
     const hostedZone = new route53.HostedZone(this, 'BabalawoDevHostedZone', {
       zoneName: 'babalawo.dev',
       comment: 'Hosted zone for babalawo.dev domain'
@@ -26,9 +23,29 @@ export class PersonalWebsiteCdkStack extends cdk.Stack {
       description: 'Name servers for babalawo.dev domain'
     });
 
-    // example resource
-    // const queue = new sqs.Queue(this, 'PersonalWebsiteCdkQueue', {
-    //   visibilityTimeout: cdk.Duration.seconds(300)
+    // CodePipeline for CI/CD using CDK Pipelines
+    const pipeline = new CodePipeline(this, 'PersonalWebsitePipeline', {
+      pipelineName: 'personal-website-pipeline',
+      synth: new ShellStep('Synth', {
+        input: CodePipelineSource.gitHub('omotolababasola-hash/personal-website-cdk', 'main'),
+        commands: [
+          'npm ci',
+          'npm run test',
+          'npm run build',
+          'npx cdk synth'
+        ]
+      })
+    });
+
+    // Output pipeline information
+    // new cdk.CfnOutput(this, 'PipelineName', {
+    //   value: pipeline.pipeline.pipelineName,
+    //   description: 'CodePipeline name for personal website'
     // });
-  }
+
+    // new cdk.CfnOutput(this, 'PipelineArn', {
+    //   value: pipeline.pipeline.pipelineArn,
+    //   description: 'CodePipeline ARN for personal website'
+    // });
+   }
 }
