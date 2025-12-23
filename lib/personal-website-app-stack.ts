@@ -34,18 +34,28 @@ export class PersonalWebsiteAppStack extends cdk.Stack {
       autoDeleteObjects: true,
     });
 
-    // Import the existing SSL certificate
     const certificate = acm.Certificate.fromCertificateArn(
       this,
       'BabalawoDevCertificate',
       'arn:aws:acm:us-east-1:003100375394:certificate/da344ad5-8cf7-40b4-bc24-e7429deb6e45'
     );
 
+    const customCachePolicy = new cloudfront.CachePolicy(this, 'CustomCachePolicy', {
+      cachePolicyName: 'babalawo-dev-cache-policy',
+      comment: 'Custom cache policy with 1 minute default TTL',
+      defaultTtl: cdk.Duration.minutes(1),
+      maxTtl: cdk.Duration.minutes(60),
+      minTtl: cdk.Duration.seconds(0),
+      headerBehavior: cloudfront.CacheHeaderBehavior.none(),
+      queryStringBehavior: cloudfront.CacheQueryStringBehavior.none(),
+      cookieBehavior: cloudfront.CacheCookieBehavior.none(),
+    });
+
     const distribution = new cloudfront.Distribution(this, 'WebsiteDistribution', {
       defaultBehavior: {
         origin: origins.S3BucketOrigin.withOriginAccessControl(websiteBucket),
         viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
-        cachePolicy: cloudfront.CachePolicy.CACHING_OPTIMIZED,
+        cachePolicy: customCachePolicy,
       },
       domainNames: ['babalawo.dev'],
       certificate: certificate,
