@@ -5,6 +5,7 @@ import * as route53Targets from 'aws-cdk-lib/aws-route53-targets';
 import * as s3 from 'aws-cdk-lib/aws-s3';
 import * as cloudfront from 'aws-cdk-lib/aws-cloudfront';
 import * as origins from 'aws-cdk-lib/aws-cloudfront-origins';
+import * as acm from 'aws-cdk-lib/aws-certificatemanager';
 
 export class PersonalWebsiteAppStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -33,6 +34,13 @@ export class PersonalWebsiteAppStack extends cdk.Stack {
       autoDeleteObjects: true,
     });
 
+    // Import the existing SSL certificate
+    const certificate = acm.Certificate.fromCertificateArn(
+      this,
+      'BabalawoDevCertificate',
+      'arn:aws:acm:us-east-1:003100375394:certificate/da344ad5-8cf7-40b4-bc24-e7429deb6e45'
+    );
+
     const distribution = new cloudfront.Distribution(this, 'WebsiteDistribution', {
       defaultBehavior: {
         origin: origins.S3BucketOrigin.withOriginAccessControl(websiteBucket),
@@ -40,6 +48,7 @@ export class PersonalWebsiteAppStack extends cdk.Stack {
         cachePolicy: cloudfront.CachePolicy.CACHING_OPTIMIZED,
       },
       domainNames: ['babalawo.dev'],
+      certificate: certificate,
       defaultRootObject: 'index.html',
       errorResponses: [
         {
