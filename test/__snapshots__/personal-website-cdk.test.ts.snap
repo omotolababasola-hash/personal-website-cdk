@@ -2,7 +2,32 @@
 
 exports[`PersonalWebsiteCdkStack matches snapshot 1`] = `
 {
+  "Mappings": {
+    "AWSCloudFrontPartitionHostedZoneIdMap": {
+      "aws": {
+        "zoneId": "Z2FDTNDATAQYW2",
+      },
+      "aws-cn": {
+        "zoneId": "Z3RFFRIM2A3IF5",
+      },
+    },
+  },
   "Outputs": {
+    "DistributionDomainName": {
+      "Description": "CloudFront distribution domain name",
+      "Value": {
+        "Fn::GetAtt": [
+          "WebsiteDistribution75DCDA0B",
+          "DomainName",
+        ],
+      },
+    },
+    "DistributionId": {
+      "Description": "CloudFront distribution ID",
+      "Value": {
+        "Ref": "WebsiteDistribution75DCDA0B",
+      },
+    },
     "HostedZoneId": {
       "Description": "Route53 Hosted Zone ID for babalawo.dev",
       "Value": {
@@ -23,6 +48,16 @@ exports[`PersonalWebsiteCdkStack matches snapshot 1`] = `
         ],
       },
     },
+    "WebsiteBucketName": {
+      "Description": "S3 bucket name for website content",
+      "Value": {
+        "Ref": "WebsiteBucket75C24D94",
+      },
+    },
+    "WebsiteUrl": {
+      "Description": "Website URL",
+      "Value": "https://babalawo.dev",
+    },
   },
   "Parameters": {
     "BootstrapVersion": {
@@ -40,6 +75,64 @@ exports[`PersonalWebsiteCdkStack matches snapshot 1`] = `
         "Name": "babalawo.dev.",
       },
       "Type": "AWS::Route53::HostedZone",
+    },
+    "CustomS3AutoDeleteObjectsCustomResourceProviderHandler9D90184F": {
+      "DependsOn": [
+        "CustomS3AutoDeleteObjectsCustomResourceProviderRole3B1BD092",
+      ],
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+          },
+          "S3Key": "faa95a81ae7d7373f3e1f242268f904eb748d8d0fdd306e8a6fe515a1905a7d6.zip",
+        },
+        "Description": {
+          "Fn::Join": [
+            "",
+            [
+              "Lambda function for auto-deleting objects in ",
+              {
+                "Ref": "WebsiteBucket75C24D94",
+              },
+              " S3 bucket.",
+            ],
+          ],
+        },
+        "Handler": "index.handler",
+        "MemorySize": 128,
+        "Role": {
+          "Fn::GetAtt": [
+            "CustomS3AutoDeleteObjectsCustomResourceProviderRole3B1BD092",
+            "Arn",
+          ],
+        },
+        "Runtime": "nodejs22.x",
+        "Timeout": 900,
+      },
+      "Type": "AWS::Lambda::Function",
+    },
+    "CustomS3AutoDeleteObjectsCustomResourceProviderRole3B1BD092": {
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Sub": "arn:\${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
     },
     "PersonalWebsitePipeline5A8D0F6E": {
       "DependsOn": [
@@ -839,6 +932,236 @@ exports[`PersonalWebsiteCdkStack matches snapshot 1`] = `
         ],
       },
       "Type": "AWS::IAM::Policy",
+    },
+    "WebsiteAliasRecordD44FA59B": {
+      "Properties": {
+        "AliasTarget": {
+          "DNSName": {
+            "Fn::GetAtt": [
+              "WebsiteDistribution75DCDA0B",
+              "DomainName",
+            ],
+          },
+          "HostedZoneId": {
+            "Fn::FindInMap": [
+              "AWSCloudFrontPartitionHostedZoneIdMap",
+              {
+                "Ref": "AWS::Partition",
+              },
+              "zoneId",
+            ],
+          },
+        },
+        "HostedZoneId": {
+          "Ref": "BabalawoDevHostedZoneDBED4CBA",
+        },
+        "Name": "babalawo.dev.",
+        "Type": "A",
+      },
+      "Type": "AWS::Route53::RecordSet",
+    },
+    "WebsiteBucket75C24D94": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "BucketName": {
+          "Fn::Join": [
+            "",
+            [
+              "babalawo-dev-website-",
+              {
+                "Ref": "AWS::AccountId",
+              },
+            ],
+          ],
+        },
+        "PublicAccessBlockConfiguration": {
+          "BlockPublicAcls": true,
+          "BlockPublicPolicy": true,
+          "IgnorePublicAcls": true,
+          "RestrictPublicBuckets": true,
+        },
+        "Tags": [
+          {
+            "Key": "aws-cdk:auto-delete-objects",
+            "Value": "true",
+          },
+        ],
+      },
+      "Type": "AWS::S3::Bucket",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "WebsiteBucketAutoDeleteObjectsCustomResource8750E461": {
+      "DeletionPolicy": "Delete",
+      "DependsOn": [
+        "WebsiteBucketPolicyE10E3262",
+      ],
+      "Properties": {
+        "BucketName": {
+          "Ref": "WebsiteBucket75C24D94",
+        },
+        "ServiceToken": {
+          "Fn::GetAtt": [
+            "CustomS3AutoDeleteObjectsCustomResourceProviderHandler9D90184F",
+            "Arn",
+          ],
+        },
+      },
+      "Type": "Custom::S3AutoDeleteObjects",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "WebsiteBucketPolicyE10E3262": {
+      "Properties": {
+        "Bucket": {
+          "Ref": "WebsiteBucket75C24D94",
+        },
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": [
+                "s3:PutBucketPolicy",
+                "s3:GetBucket*",
+                "s3:List*",
+                "s3:DeleteObject*",
+              ],
+              "Effect": "Allow",
+              "Principal": {
+                "AWS": {
+                  "Fn::GetAtt": [
+                    "CustomS3AutoDeleteObjectsCustomResourceProviderRole3B1BD092",
+                    "Arn",
+                  ],
+                },
+              },
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "WebsiteBucket75C24D94",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "WebsiteBucket75C24D94",
+                          "Arn",
+                        ],
+                      },
+                      "/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            {
+              "Action": "s3:GetObject",
+              "Condition": {
+                "StringEquals": {
+                  "AWS:SourceArn": {
+                    "Fn::Join": [
+                      "",
+                      [
+                        "arn:",
+                        {
+                          "Ref": "AWS::Partition",
+                        },
+                        ":cloudfront::",
+                        {
+                          "Ref": "AWS::AccountId",
+                        },
+                        ":distribution/",
+                        {
+                          "Ref": "WebsiteDistribution75DCDA0B",
+                        },
+                      ],
+                    ],
+                  },
+                },
+              },
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "cloudfront.amazonaws.com",
+              },
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    {
+                      "Fn::GetAtt": [
+                        "WebsiteBucket75C24D94",
+                        "Arn",
+                      ],
+                    },
+                    "/*",
+                  ],
+                ],
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+      },
+      "Type": "AWS::S3::BucketPolicy",
+    },
+    "WebsiteDistribution75DCDA0B": {
+      "Properties": {
+        "DistributionConfig": {
+          "Aliases": [
+            "babalawo.dev",
+          ],
+          "CustomErrorResponses": [
+            {
+              "ErrorCode": 404,
+              "ResponseCode": 200,
+              "ResponsePagePath": "/index.html",
+            },
+          ],
+          "DefaultCacheBehavior": {
+            "CachePolicyId": "658327ea-f89d-4fab-a63d-7e88639e58f6",
+            "Compress": true,
+            "TargetOriginId": "MyTestStackWebsiteDistributionOrigin16ABD9693",
+            "ViewerProtocolPolicy": "redirect-to-https",
+          },
+          "DefaultRootObject": "index.html",
+          "Enabled": true,
+          "HttpVersion": "http2",
+          "IPV6Enabled": true,
+          "Origins": [
+            {
+              "DomainName": {
+                "Fn::GetAtt": [
+                  "WebsiteBucket75C24D94",
+                  "RegionalDomainName",
+                ],
+              },
+              "Id": "MyTestStackWebsiteDistributionOrigin16ABD9693",
+              "OriginAccessControlId": {
+                "Fn::GetAtt": [
+                  "WebsiteDistributionOrigin1S3OriginAccessControlAD90E5FA",
+                  "Id",
+                ],
+              },
+              "S3OriginConfig": {
+                "OriginAccessIdentity": "",
+              },
+            },
+          ],
+        },
+      },
+      "Type": "AWS::CloudFront::Distribution",
+    },
+    "WebsiteDistributionOrigin1S3OriginAccessControlAD90E5FA": {
+      "Properties": {
+        "OriginAccessControlConfig": {
+          "Name": "MyTestStackWebsiteDistributiOrigin1S3OriginAccessControlBA42AA66",
+          "OriginAccessControlOriginType": "s3",
+          "SigningBehavior": "always",
+          "SigningProtocol": "sigv4",
+        },
+      },
+      "Type": "AWS::CloudFront::OriginAccessControl",
     },
   },
   "Rules": {
